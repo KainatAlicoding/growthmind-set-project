@@ -23,15 +23,29 @@ if uploaded_file:
     
     # Data Cleaning Options
     st.subheader("🧼 Data Cleaning Options:")
-    if st.button("Remove Duplicates"):
+    clean_option = st.checkbox("Clean data for testing report")
+    if clean_option:
         df = df.drop_duplicates()
-        st.success("✔️ Duplicates removed!")
-    
-    if st.button("Fill Missing Values with Mean"):
         df = df.fillna(df.mean(numeric_only=True))
-        st.success("✔️ Missing values filled!")
+        st.success("✔️ Data cleaned successfully!")
     
-    # File Download Option
-    st.subheader("💾 Download Cleaned File:")
-    cleaned_file = df.to_csv(index=False).encode("utf-8")
-    st.download_button("Download as CSV", cleaned_file, "cleaned_data.csv", "text/csv")
+    # Column Selection
+    st.subheader("🎯 Select Columns to Keep")
+    columns = st.multiselect("Choose columns to keep:", df.columns, default=list(df.columns))
+    df = df[columns]
+    
+    # Data Visualization Option
+    st.subheader("📊 Data Visualization")
+    visualize_option = st.checkbox("Show visualization for uploaded file")
+    if visualize_option:
+        st.line_chart(df.select_dtypes(include=['number']))
+    
+    # File Conversion Option
+    st.subheader("🔄 Conversion Options")
+    convert_to = st.radio("Convert file to:", ("CSV", "Excel"))
+    if convert_to == "CSV":
+        converted_file = df.to_csv(index=False).encode("utf-8")
+        st.download_button("Download as CSV", converted_file, "cleaned_data.csv", "text/csv")
+    else:
+        converted_file = df.to_excel(index=False).encode("utf-8")
+        st.download_button("Download as Excel", converted_file, "cleaned_data.xlsx", "application/vnd.ms-excel")
